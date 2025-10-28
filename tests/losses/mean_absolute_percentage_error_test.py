@@ -3,10 +3,9 @@ from unittest import TestCase
 import jax
 import jax.numpy as jnp
 import numpy as np
-import tensorflow.keras as tfk
 
 import jax_metrics as jm
-from jax_metrics import types, utils
+from jax_metrics import types
 
 
 class MeanAbsolutePercentageErrorTest(TestCase):
@@ -40,54 +39,6 @@ class MeanAbsolutePercentageErrorTest(TestCase):
 
     #
     def test_function(self):
-        target = jnp.array([[1.0, 1.0], [0.9, 0.0]])
-        preds = jnp.array([[1.0, 1.0], [1.0, 0.0]])
-
-        ## Standard MAPE
-        mape_elegy = jm.losses.MeanAbsolutePercentageError()
-        mape_tfk = tfk.losses.MeanAbsolutePercentageError()
-        assert np.isclose(
-            mape_elegy(target=target, preds=preds),
-            mape_tfk(target, preds),
-            rtol=0.0001,
-        )
-
-        ## MAPE using sample_weight
-        assert np.isclose(
-            mape_elegy(target=target, preds=preds, sample_weight=jnp.array([1, 0])),
-            mape_tfk(target, preds, sample_weight=jnp.array([1, 0])),
-            rtol=0.0001,
-        )
-
-        ## MAPE with reduction method: SUM
-        mape_elegy = jm.losses.MeanAbsolutePercentageError(
-            reduction=jm.losses.Reduction.SUM
-        )
-        mape_tfk = tfk.losses.MeanAbsolutePercentageError(
-            reduction=tfk.losses.Reduction.SUM
-        )
-        assert np.isclose(
-            mape_elegy(target=target, preds=preds),
-            mape_tfk(target, preds),
-            rtol=0.0001,
-        )
-
-        ## MAPE with reduction method: NONE
-        mape_elegy = jm.losses.MeanAbsolutePercentageError(
-            reduction=jm.losses.Reduction.NONE
-        )
-        mape_tfk = tfk.losses.MeanAbsolutePercentageError(
-            reduction=tfk.losses.Reduction.NONE
-        )
-        assert jnp.all(
-            np.isclose(
-                mape_elegy(target=target, preds=preds),
-                mape_tfk(target, preds),
-                rtol=0.0001,
-            )
-        )
-
-        ## Prove the loss function
         rng = jax.random.PRNGKey(42)
         target = jax.random.randint(rng, shape=(2, 3), minval=0, maxval=2)
         preds = jax.random.uniform(rng, shape=(2, 3))

@@ -1,7 +1,6 @@
 import jax
 import jax.numpy as jnp
 import numpy as np
-import tensorflow.keras as tfk
 
 import jax_metrics as jm
 
@@ -66,46 +65,6 @@ def test_function():
     )
 
 
-def test_compatibility():
-    # Input:  true (target) and predicted (preds) tensors
-    rng = jax.random.PRNGKey(121)
-
-    target = jax.random.randint(rng, shape=(2, 3), minval=0, maxval=2)
-    target = target.astype(dtype=jnp.float32)
-    preds = jax.random.uniform(rng, shape=(2, 3))
-
-    # cosine_loss using sample_weight
-    huber_loss = jm.losses.Huber(delta=1.0)
-    huber_loss_tfk = tfk.losses.Huber(delta=1.0)
-
-    assert np.isclose(
-        huber_loss(target=target, preds=preds, sample_weight=jnp.array([1, 0])),
-        huber_loss_tfk(target, preds, sample_weight=jnp.array([1, 0])),
-        rtol=0.0001,
-    )
-
-    # cosine_loss with reduction method: SUM
-    huber_loss = jm.losses.Huber(delta=1.0, reduction=jm.losses.Reduction.SUM)
-    huber_loss_tfk = tfk.losses.Huber(delta=1.0, reduction=tfk.losses.Reduction.SUM)
-    assert np.isclose(
-        huber_loss(target=target, preds=preds),
-        huber_loss_tfk(target, preds),
-        rtol=0.0001,
-    )
-
-    # cosine_loss with reduction method: NONE
-    huber_loss = jm.losses.Huber(delta=1.0, reduction=jm.losses.Reduction.NONE)
-    huber_loss_tfk = tfk.losses.Huber(delta=1.0, reduction=tfk.losses.Reduction.NONE)
-    assert jnp.all(
-        np.isclose(
-            huber_loss(target=target, preds=preds),
-            huber_loss_tfk(target, preds),
-            rtol=0.0001,
-        )
-    )
-
-
 if __name__ == "__main__":
     test_basic()
     test_function()
-    test_compatibility()

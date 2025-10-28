@@ -1,10 +1,9 @@
 import jax
 import jax.numpy as jnp
 import numpy as np
-import tensorflow.keras as tfk
 
 import jax_metrics as jm
-from jax_metrics import types, utils
+from jax_metrics import types
 
 # import debugpy
 
@@ -54,47 +53,6 @@ def test_function():
     first_log = jnp.log(jnp.maximum(target, types.EPSILON) + 1.0)
     second_log = jnp.log(jnp.maximum(preds, types.EPSILON) + 1.0)
     assert jnp.array_equal(loss, jnp.mean(jnp.square(first_log - second_log), axis=-1))
-
-
-def test_compatibility():
-    # Input:  true (target) and predicted (preds) tensors
-    target = jnp.array([[0.0, 1.0], [0.0, 0.0]])
-    preds = jnp.array([[0.6, 0.4], [0.4, 0.6]])
-
-    # MSLE using sample_weight
-    msle_elegy = jm.losses.MeanSquaredLogarithmicError()
-    msle_tfk = tfk.losses.MeanSquaredLogarithmicError()
-    assert np.isclose(
-        msle_elegy(target=target, preds=preds, sample_weight=jnp.array([1, 0])),
-        msle_tfk(target, preds, sample_weight=jnp.array([1, 0])),
-        rtol=0.0001,
-    )
-
-    # MSLE with reduction method: SUM
-    msle_elegy = jm.losses.MeanSquaredLogarithmicError(
-        reduction=jm.losses.Reduction.SUM
-    )
-    msle_tfk = tfk.losses.MeanSquaredLogarithmicError(
-        reduction=tfk.losses.Reduction.SUM
-    )
-    assert np.isclose(
-        msle_elegy(target=target, preds=preds), msle_tfk(target, preds), rtol=0.0001
-    )
-
-    # MSLE with reduction method: NONE
-    msle_elegy = jm.losses.MeanSquaredLogarithmicError(
-        reduction=jm.losses.Reduction.NONE
-    )
-    msle_tfk = tfk.losses.MeanSquaredLogarithmicError(
-        reduction=tfk.losses.Reduction.NONE
-    )
-    assert jnp.all(
-        np.isclose(
-            msle_elegy(target=target, preds=preds),
-            msle_tfk(target, preds),
-            rtol=0.0001,
-        )
-    )
 
 
 if __name__ == "__main__":

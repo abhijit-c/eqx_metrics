@@ -2,8 +2,6 @@ import hypothesis as hp
 import jax
 import jax.numpy as jnp
 import numpy as np
-import torch
-import torchmetrics as tm
 from hypothesis import strategies as st
 
 import jax_metrics as jm
@@ -17,9 +15,9 @@ class TestMAE:
         mae_tx = jm.metrics.MeanAbsoluteError()
         mae_tx_value, mae_tx = mae_tx(target=target, preds=preds)
 
-        mae_tm = tm.MeanAbsoluteError()
-        mae_tm_value = mae_tm(torch.from_numpy(preds), torch.from_numpy(target))
-        assert np.isclose(np.array(mae_tx_value), mae_tm_value.numpy())
+        # Calculate expected MAE using NumPy
+        expected_mae = np.mean(np.abs(preds - target))
+        assert np.isclose(np.array(mae_tx_value), expected_mae)
 
     @hp.given(
         use_sample_weight=st.booleans(),
@@ -67,17 +65,26 @@ class TestMAE:
 
     def test_accumulative_mae(self):
         mae_tx = jm.metrics.MeanAbsoluteError().reset()
-        mae_tm = tm.MeanAbsoluteError()
+
+        all_targets = []
+        all_preds = []
+
         for batch in range(2):
             target = np.random.randn(8, 5, 5)
             preds = np.random.randn(8, 5, 5)
 
             mae_tx = mae_tx.update(target=target, preds=preds)
-            mae_tm(torch.from_numpy(preds), torch.from_numpy(target))
+            all_targets.append(target)
+            all_preds.append(preds)
+
+        # Calculate expected MAE across all batches
+        all_targets = np.concatenate(all_targets, axis=0)
+        all_preds = np.concatenate(all_preds, axis=0)
+        expected_mae = np.mean(np.abs(all_preds - all_targets))
 
         assert np.isclose(
             np.array(mae_tx.compute()),
-            mae_tm.compute().numpy(),
+            expected_mae,
         )
 
     def test_mae_short(self):

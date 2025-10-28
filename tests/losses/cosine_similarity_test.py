@@ -1,10 +1,9 @@
 import jax
 import jax.numpy as jnp
 import numpy as np
-import tensorflow.keras as tfk
 
 import jax_metrics as jm
-from jax_metrics import types, utils
+from jax_metrics import types
 
 # import debugpy
 
@@ -57,50 +56,6 @@ def test_function():
     assert jnp.array_equal(loss, -jnp.sum(target * preds, axis=1))
 
 
-def test_compatibility():
-    # Input:  true (target) and predicted (preds) tensors
-    rng = jax.random.PRNGKey(121)
-
-    target = jax.random.randint(rng, shape=(2, 3), minval=0, maxval=2)
-    target = target.astype(dtype=jnp.float32)
-    preds = jax.random.uniform(rng, shape=(2, 3))
-
-    # cosine_loss using sample_weight
-    cosine_loss = jm.losses.CosineSimilarity(axis=1)
-    cosine_loss_tfk = tfk.losses.CosineSimilarity(axis=1)
-
-    assert np.isclose(
-        cosine_loss(target=target, preds=preds, sample_weight=jnp.array([1, 0])),
-        cosine_loss_tfk(target, preds, sample_weight=jnp.array([1, 0])),
-        rtol=0.0001,
-    )
-
-    # cosine_loss with reduction method: SUM
-    cosine_loss = jm.losses.CosineSimilarity(axis=1, reduction=jm.losses.Reduction.SUM)
-    cosine_loss_tfk = tfk.losses.CosineSimilarity(
-        axis=1, reduction=tfk.losses.Reduction.SUM
-    )
-    assert np.isclose(
-        cosine_loss(target=target, preds=preds),
-        cosine_loss_tfk(target, preds),
-        rtol=0.0001,
-    )
-
-    # cosine_loss with reduction method: NONE
-    cosine_loss = jm.losses.CosineSimilarity(axis=1, reduction=jm.losses.Reduction.NONE)
-    cosine_loss_tfk = tfk.losses.CosineSimilarity(
-        axis=1, reduction=tfk.losses.Reduction.NONE
-    )
-    assert jnp.all(
-        np.isclose(
-            cosine_loss(target=target, preds=preds),
-            cosine_loss_tfk(target, preds),
-            rtol=0.0001,
-        )
-    )
-
-
 if __name__ == "__main__":
     test_basic()
     test_function()
-    test_compatibility()

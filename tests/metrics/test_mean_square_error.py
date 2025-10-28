@@ -2,8 +2,6 @@ import hypothesis as hp
 import jax
 import jax.numpy as jnp
 import numpy as np
-import torch
-import torchmetrics as tm
 from hypothesis import strategies as st
 
 import jax_metrics as jm
@@ -17,24 +15,32 @@ class TestMSE:
         mse_tx = jm.metrics.MeanSquareError()
         mse_tx_value, mse_tx = mse_tx(target=target, preds=preds)
 
-        mse_tm = tm.MeanSquaredError()
-        mse_tm_value = mse_tm(torch.from_numpy(preds), torch.from_numpy(target))
-        assert np.isclose(np.array(mse_tx_value), mse_tm_value.numpy())
+        # Calculate expected MSE using NumPy
+        expected_mse = np.mean((preds - target) ** 2)
+        assert np.isclose(np.array(mse_tx_value), expected_mse)
 
     def test_accumulative_mse(self):
         mse_tx = jm.metrics.MeanSquareError()
-        mse_tm = tm.MeanSquaredError()
+
+        all_targets = []
+        all_preds = []
 
         for batch in range(2):
             target = np.random.randn(8, 5, 5)
             preds = np.random.randn(8, 5, 5)
 
             mse_tx = mse_tx.update(target=target, preds=preds)
-            mse_tm(torch.from_numpy(preds), torch.from_numpy(target))
+            all_targets.append(target)
+            all_preds.append(preds)
+
+        # Calculate expected MSE across all batches
+        all_targets = np.concatenate(all_targets, axis=0)
+        all_preds = np.concatenate(all_preds, axis=0)
+        expected_mse = np.mean((all_preds - all_targets) ** 2)
 
         assert np.isclose(
             np.array(mse_tx.compute()),
-            mse_tm.compute().numpy(),
+            expected_mse,
         )
 
     def test_mse_short(self):

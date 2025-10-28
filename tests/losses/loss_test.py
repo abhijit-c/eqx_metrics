@@ -21,7 +21,7 @@ class LossTest(TestCase):
         sample_loss = mae.call(target, preds)
         loss = mae(target=target, preds=preds)
 
-        assert jnp.alltrue(sample_loss == jnp.array([1.0, 1.0, 1.0]))
+        assert jnp.all(sample_loss == jnp.array([1.0, 1.0, 1.0]))
         assert loss == 1
 
     def test_slice(self):
