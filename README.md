@@ -1,18 +1,20 @@
-<!-- codecov badge -->
-[![codecov](https://codecov.io/gh/cgarciae/jax_metrics/branch/master/graph/badge.svg?token=3IKEUAU3C8)](https://codecov.io/gh/cgarciae/jax_metrics)
+# Equinox Metrics
 
-# JAX Metrics
+_A Metrics library for equinox._
+Forked from https://github.com/cgarciae/jax_metrics
 
-_A Metrics library for the JAX ecosystem_
+## Reasons for Forking
+The original project appears to have been deprecated.
+Moreover, I wanted to update the repository to function with the latest version
+of python.
 
-#### Main Features
+## Main Features
 * Standard metrics that can be used in any JAX project.
-* Pytree abstractions that can natively integrate with all JAX APIs and pytree-supporting frameworks (flax.struct, equinox, treex, etc).
+* Pytree abstractions that can natively integrate with all equinox APIs.
 * Distributed-friendly APIs that make it super easy to synchronize metrics across devices.
 * Automatic accumulation over epochs.
 
-
-JAX Metrics is implemented on top of [Treeo](https://github.com/cgarciae/treeo).
+JAX Metrics is implemented on top of [equinox](https://github.com/patrick-kidger/equinox).
 
 ## What is included?
 * The Keras-like `Loss` and `Metric` abstractions.
