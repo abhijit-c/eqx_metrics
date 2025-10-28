@@ -1,9 +1,9 @@
 import typing as tp
 
+import equinox as eqx
 import jax
 import jax.numpy as jnp
 import numpy as np
-from simple_pytree import field, static_field
 
 from jax_metrics import types, utils
 from jax_metrics.losses.loss import Loss
@@ -18,7 +18,7 @@ LossFn = tp.Callable[..., jax.Array]
 class Losses(SumMetric):
     totals: tp.Dict[str, jax.Array]
     counts: tp.Dict[str, jax.Array]
-    losses: tp.Dict[str, LossFn] = static_field()
+    losses: tp.Dict[str, LossFn] = eqx.field(static=True)
 
     def __init__(
         self,

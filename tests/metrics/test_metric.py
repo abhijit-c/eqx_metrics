@@ -1,15 +1,12 @@
-import dataclasses
 import inspect
 import typing as tp
 
 import jax
 import pytest
-from simple_pytree import field, static_field
 
 import jax_metrics as jm
 
 
-@dataclasses.dataclass
 class MyMetric(jm.SumMetric):
     target: int = 0
     preds: int = 0
@@ -72,7 +69,6 @@ class TestMetric:
             metric(target, preds)
 
     def test_jit(self):
-        @dataclasses.dataclass
         class MyMetric(jm.SumMetric):
             a: tp.Optional[int] = None
 

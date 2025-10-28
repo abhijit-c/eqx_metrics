@@ -1,8 +1,8 @@
 from typing import Dict, List, Optional, Union
 
+import equinox as eqx
 import jax
 import jax.numpy as jnp
-from simple_pytree import static_field
 
 from jax_metrics.metrics import utils as metric_utils
 from jax_metrics.metrics.metric import SumMetric
@@ -125,15 +125,15 @@ class Accuracy(SumMetric):
     tn: jax.Array
     fn: jax.Array
 
-    average: AverageMethod = static_field()
-    mdmc_average: MDMCAverageMethod = static_field()
-    num_classes: Optional[int] = static_field()
-    threshold: float = static_field()
-    multiclass: Optional[bool] = static_field()
-    ignore_index: Optional[int] = static_field()
-    top_k: Optional[int] = static_field()
-    subset_accuracy: bool = static_field()
-    mode: DataType = static_field()
+    average: AverageMethod = eqx.field(static=True)
+    mdmc_average: MDMCAverageMethod = eqx.field(static=True)
+    num_classes: Optional[int] = eqx.field(static=True)
+    threshold: float = eqx.field(static=True)
+    multiclass: Optional[bool] = eqx.field(static=True)
+    ignore_index: Optional[int] = eqx.field(static=True)
+    top_k: Optional[int] = eqx.field(static=True)
+    subset_accuracy: bool = eqx.field(static=True)
+    mode: DataType = eqx.field(static=True)
 
     def __init__(
         self,

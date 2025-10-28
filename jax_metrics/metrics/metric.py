@@ -1,10 +1,9 @@
-import dataclasses
 import typing as tp
 from abc import abstractmethod
 
+import equinox as eqx
 import jax
 import jax.numpy as jnp
-from simple_pytree import Pytree, field, static_field
 
 from jax_metrics import types
 
@@ -12,7 +11,7 @@ M = tp.TypeVar("M", bound="Metric")
 Slice = tp.Tuple[tp.Union[int, str], ...]
 
 
-class Metric(Pytree):
+class Metric(eqx.Module):
     """
     Encapsulates metric logic and state. Metrics accumulate state between calls such
     that their output value reflect the metric as if calculated on the whole data
@@ -28,6 +27,22 @@ class Metric(Pytree):
         metric = metric.merge(batch_updates)
 
         return batch_values, metric
+
+    def replace(self: M, **kwargs: tp.Any) -> M:
+        """
+        Returns a new instance with specified fields replaced.
+
+        Arguments:
+            **kwargs: Fields to replace with new values
+
+        Returns:
+            New instance with updated fields
+        """
+        return eqx.tree_at(
+            lambda m: [getattr(m, key) for key in kwargs.keys()],
+            self,
+            list(kwargs.values())
+        )
 
     @abstractmethod
     def reset(self: M) -> M:
@@ -176,8 +191,8 @@ class SumMetric(Metric):
 
 
 class IndexedMetric(Metric):
-    metric: Metric = field()
-    arg_slice: tp.Dict[str, Slice] = static_field()
+    metric: Metric
+    arg_slice: tp.Dict[str, Slice] = eqx.field(static=True)
 
     def __init__(
         self,
@@ -219,10 +234,9 @@ Real = str
 Expected = str
 
 
-@dataclasses.dataclass
 class RenameArguments(tp.Generic[M], Metric):
-    metric: M = field()
-    real_to_expected: tp.Dict[Real, Expected] = static_field()
+    metric: M
+    real_to_expected: tp.Dict[Real, Expected] = eqx.field(static=True)
 
     def reset(self) -> "RenameArguments[M]":
         return self.replace(metric=self.metric.reset())

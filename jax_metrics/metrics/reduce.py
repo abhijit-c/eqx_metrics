@@ -1,10 +1,10 @@
 import enum
 import typing as tp
 
+import equinox as eqx
 import jax
 import jax.numpy as jnp
 import numpy as np
-from simple_pytree import field, static_field
 
 from jax_metrics import types
 from jax_metrics.metrics.metric import Metric, RenameArguments, SumMetric
@@ -23,8 +23,8 @@ class Reduce(SumMetric):
 
     total: jax.Array
     count: tp.Optional[jax.Array]
-    reduction: Reduction = static_field()
-    dtype: jnp.dtype = static_field()
+    reduction: Reduction = eqx.field(static=True)
+    dtype: jnp.dtype = eqx.field(static=True)
 
     def __init__(
         self,

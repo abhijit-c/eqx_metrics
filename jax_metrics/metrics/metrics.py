@@ -1,10 +1,9 @@
-import dataclasses
 import typing as tp
 
+import equinox as eqx
 import jax
 import jax.numpy as jnp
 import numpy as np
-from simple_pytree import field, static_field
 
 from jax_metrics import types, utils
 from jax_metrics.metrics.metric import Metric, SumMetric
@@ -13,7 +12,6 @@ M = tp.TypeVar("M", bound="Metrics")
 A = tp.TypeVar("A", bound="AuxMetrics")
 
 
-@dataclasses.dataclass
 class Metrics(Metric):
     metrics: tp.Dict[str, Metric]
 
@@ -79,9 +77,9 @@ class Metrics(Metric):
 
 
 class AuxMetrics(SumMetric):
-    totals: tp.Optional[tp.Dict[str, jax.Array]] = field()
-    counts: tp.Optional[tp.Dict[str, jax.Array]] = field()
-    names: tp.Tuple[str, ...] = static_field()
+    totals: tp.Optional[tp.Dict[str, jax.Array]]
+    counts: tp.Optional[tp.Dict[str, jax.Array]]
+    names: tp.Tuple[str, ...] = eqx.field(static=True)
 
     def __init__(self, names: tp.Iterable[str]):
         self.names = tuple(names)
