@@ -29,7 +29,7 @@ class Losses(SumMetric):
         self.counts = {name: jnp.array(0, dtype=jnp.uint32) for name in self.losses}
 
     def reset(self: M) -> M:
-        return jax.tree_map(jnp.zeros_like, self)
+        return jax.tree.map(jnp.zeros_like, self)
 
     def update(self: M, **kwargs) -> M:
         if self.totals is None or self.counts is None:

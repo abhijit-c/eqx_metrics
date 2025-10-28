@@ -80,7 +80,7 @@ class Metric(Pytree):
         Returns:
             Metric with aggregated state
         """
-        # return jax.tree_map(lambda x: jnp.sum(x, axis=0), self)
+        # return jax.tree.map(lambda x: jnp.sum(x, axis=0), self)
         ...
 
     @abstractmethod
@@ -96,7 +96,7 @@ class Metric(Pytree):
         metric = metric.merge(batch_updates)
         ```
         """
-        # return jax.tree_map(lambda x, y: x + y, self, other)
+        # return jax.tree.map(lambda x, y: x + y, self, other)
         ...
 
     def batch_updates(self: M, **kwargs: tp.Any) -> M:
@@ -169,10 +169,10 @@ class Metric(Pytree):
 
 class SumMetric(Metric):
     def merge(self: M, other: M) -> M:
-        return jax.tree_map(lambda x, y: x + y, self, other)
+        return jax.tree.map(lambda x, y: x + y, self, other)
 
     def reduce(self: M) -> M:
-        return jax.tree_map(lambda x: jnp.sum(x, axis=0), self)
+        return jax.tree.map(lambda x: jnp.sum(x, axis=0), self)
 
 
 class IndexedMetric(Metric):

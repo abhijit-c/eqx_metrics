@@ -65,7 +65,7 @@ with open("mkdocs.yml", "r") as f:
 ]
 
 
-api_reference = jax.tree_map(
+api_reference = jax.tree.map(
     lambda info: "api/" + "/".join(info.path) + ".md",
     docs_info,
 )
